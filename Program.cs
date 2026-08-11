@@ -43,12 +43,11 @@ app.MapPost("/customers", async (CreateCustomerRequest request, ShopDbContext db
     db.Customers.Add(customer);
     await db.SaveChangesAsync();
     var response = new CustomerResponse(
+        customer.Id,
         customer.Name,
         customer.Email,
         customer.Orders.Select(Orders => new OrderResponse(
             Orders.Id, Orders.OrderDate, Orders.TotalAmount, Orders.CustomerId)).ToList());
-    // TODO: customer zu db.Customers hinzufügen, speichern (SaveChangesAsync)
-    //       und Results.Created(...) mit dem angelegten Kunden zurückgeben.
     return Results.Created($"/customers/{customer.Id}", response);
 });
 
@@ -57,6 +56,12 @@ app.MapPost("/customers", async (CreateCustomerRequest request, ShopDbContext db
 // ---------------------------------------------------------------------
 app.MapGet("/customers", async (ShopDbContext db) =>
 {
+    var customers = await db.Customers.Include(Customers => Customers.Orders).ToListAsync();
+
+    foreach (var customer in customers)
+    {
+        
+    }
     // TODO: Alle Customers MIT ihren Orders laden (Include!) und zurückgeben.
     return Results.Problem("Aufgabe 2 noch nicht implementiert.");
 });
