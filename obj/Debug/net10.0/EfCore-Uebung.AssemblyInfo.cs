@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EfCore-Uebung")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+76153094c70ab2a6f17792a414a87e45171b9cac")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ea07b86e86b5431d6efa1f1aadc15ab0930ed204")]
 [assembly: System.Reflection.AssemblyProductAttribute("EfCore-Uebung")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EfCore-Uebung")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,4 +1,5 @@
 using EfCore_Uebung.Data;
+using EfCore_Uebung.Dtos;
 using EfCore_Uebung.Models;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -31,11 +32,24 @@ app.UseHttpsRedirection();
 // ---------------------------------------------------------------------
 // AUFGABE 1: Kunden anlegen (CREATE)  ->  POST /customers
 // ---------------------------------------------------------------------
-app.MapPost("/customers", async (Customer customer, ShopDbContext db) =>
+app.MapPost("/customers", async (CreateCustomerRequest request, ShopDbContext db) =>
 {
+    var customer = new Customer
+    {
+        Name = request.Name,
+        Email = request.Email
+    };
+
+    db.Customers.Add(customer);
+    await db.SaveChangesAsync();
+    var response = new CustomerResponse(
+        customer.Name,
+        customer.Email,
+        customer.Orders.Select(Orders => new OrderResponse(
+            Orders.Id, Orders.OrderDate, Orders.TotalAmount, Orders.CustomerId)).ToList());
     // TODO: customer zu db.Customers hinzufügen, speichern (SaveChangesAsync)
     //       und Results.Created(...) mit dem angelegten Kunden zurückgeben.
-    return Results.Problem("Aufgabe 1 noch nicht implementiert.");
+    return Results.Created($"/customers/{customer.Id}", response);
 });
 
 // ---------------------------------------------------------------------
