@@ -10,7 +10,7 @@ builder.Services.AddOpenApi();
 
 // DbContext per Dependency Injection registrieren (API-Standard)
 builder.Services.AddDbContext<ShopDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 var app = builder.Build();
 
