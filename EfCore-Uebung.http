@@ -1,0 +1,34 @@
+@host = http://localhost:5096
+
+### Aufgabe 1: Kunde anlegen
+POST {{host}}/customers
+Content-Type: application/json
+
+{
+  "name": "Erika Mustermann",
+  "email": "erika@example.com"
+}
+
+### Aufgabe 2: Alle Kunden (inkl. Bestellungen)
+GET {{host}}/customers
+
+### Aufgabe 3: Kunde per Id
+GET {{host}}/customers/1
+
+### Aufgabe 4: Bestellung zu Kunde 1 anlegen
+POST {{host}}/customers/1/orders
+Content-Type: application/json
+
+{
+  "orderDate": "2026-08-11T10:00:00",
+  "totalAmount": 79.90
+}
+
+### Aufgabe 5: Bestellbetrag ändern
+PUT {{host}}/orders/1?newAmount=99.90
+
+### Aufgabe 6: Bestellung löschen
+DELETE {{host}}/orders/1
+
+### Aufgabe 7: Teure Bestellungen (> 50)
+GET {{host}}/orders/expensive?min=50
