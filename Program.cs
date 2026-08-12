@@ -101,6 +101,11 @@ app.MapPost("/customers/{id}/orders", async (int id, CreateOrderRequest request,
 {
     var customer = await db.Customers.SingleAsync(Customer => Customer.Id == id);
 
+    if(customer == null)
+    {
+        return Results.NotFound();
+    }
+
     var order = new Order
     {
         CustomerId = id,
