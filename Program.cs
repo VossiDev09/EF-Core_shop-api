@@ -1,7 +1,9 @@
 using EfCore_Uebung.Data;
 using EfCore_Uebung.Dtos;
 using EfCore_Uebung.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -58,14 +60,13 @@ app.MapGet("/customers", async (ShopDbContext db) =>
 {
     var customers = await db.Customers.Include(Customers => Customers.Orders).ToListAsync();
 
-    // var response = new CustomerResponse(
-        var response = customers.Select(Customer => new CustomerResponse(
-            Customer.Id,
-            Customer.Name,
-            Customer.Email,
-            Customer.Orders.Select(Order => new OrderResponse(
-                Order.Id, Order.OrderDate, Order.TotalAmount, Order.CustomerId)).ToList())).ToList();
-    
+    var response = customers.Select(Customer => new CustomerResponse(
+        Customer.Id,
+        Customer.Name,
+        Customer.Email,
+        Customer.Orders.Select(Order => new OrderResponse(
+            Order.Id, Order.OrderDate, Order.TotalAmount, Order.CustomerId)).ToList())).ToList();
+
     // TODO: Alle Customers MIT ihren Orders laden (Include!) und zurückgeben.
     return Results.Ok(response);
 });
@@ -75,7 +76,12 @@ app.MapGet("/customers", async (ShopDbContext db) =>
 // ---------------------------------------------------------------------
 app.MapGet("/customers/{id}", async (int id, ShopDbContext db) =>
 {
-    var customer = await db.Customers.SingleAsync(Customer => Customer.Id == id);
+    var customer = await db.Customers.Include(Customer => Customer.Orders).SingleOrDefaultAsync(Customer => Customer.Id == id);
+
+    if(customer == null)
+    {
+        return Results.NotFound();
+    }
 
     var response = new CustomerResponse(
         customer.Id,
@@ -91,10 +97,29 @@ app.MapGet("/customers/{id}", async (int id, ShopDbContext db) =>
 // AUFGABE 4: Bestellung zu einem Kunden anlegen (CREATE)
 //            ->  POST /customers/{id}/orders
 // ---------------------------------------------------------------------
-app.MapPost("/customers/{id}/orders", async (int id, Order order, ShopDbContext db) =>
+app.MapPost("/customers/{id}/orders", async (int id, CreateOrderRequest request, ShopDbContext db) =>
 {
+    var customer = await db.Customers.SingleAsync(Customer => Customer.Id == id);
+
+    var order = new Order
+    {
+        CustomerId = id,
+        OrderDate = request.OrderDate,
+        TotalAmount = request.TotalAmount
+    };
+
+    db.Orders.Add(order);
+    await db.SaveChangesAsync();
+
+    var response = new OrderResponse(
+        order.Id,
+        order.OrderDate,
+        order.TotalAmount,
+        order.CustomerId
+    );
+
     // TODO: Prüfen ob Kunde existiert. order.CustomerId setzen, speichern.
-    return Results.Problem("Aufgabe 4 noch nicht implementiert.");
+    return Results.Ok(response);
 });
 
 // ---------------------------------------------------------------------
