@@ -75,8 +75,16 @@ app.MapGet("/customers", async (ShopDbContext db) =>
 // ---------------------------------------------------------------------
 app.MapGet("/customers/{id}", async (int id, ShopDbContext db) =>
 {
+    var customer = await db.Customers.SingleAsync(Customer => Customer.Id == id);
+
+    var response = new CustomerResponse(
+        customer.Id,
+        customer.Name,
+        customer.Email,
+        customer.Orders.Select(Orders => new OrderResponse(
+            Orders.Id, Orders.OrderDate, Orders.TotalAmount, Orders.CustomerId)).ToList());
     // TODO: Kunden per Id (inkl. Orders) suchen. Gefunden -> Ok, sonst NotFound.
-    return Results.Problem("Aufgabe 3 noch nicht implementiert.");
+    return Results.Ok(response);
 });
 
 // ---------------------------------------------------------------------

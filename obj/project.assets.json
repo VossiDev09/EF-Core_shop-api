@@ -3163,11 +3163,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "c:\\Users\\vosshans\\Desktop\\Coden\\EfCore\\EfCore-Uebung\\EfCore-Uebung.csproj",
+      "projectUniqueName": "C:\\Users\\vosshans\\Desktop\\Coden\\EfCore\\EfCore-Uebung\\EfCore-Uebung.csproj",
       "projectName": "EfCore-Uebung",
-      "projectPath": "c:\\Users\\vosshans\\Desktop\\Coden\\EfCore\\EfCore-Uebung\\EfCore-Uebung.csproj",
+      "projectPath": "C:\\Users\\vosshans\\Desktop\\Coden\\EfCore\\EfCore-Uebung\\EfCore-Uebung.csproj",
       "packagesPath": "C:\\Users\\vosshans\\.nuget\\packages\\",
-      "outputPath": "c:\\Users\\vosshans\\Desktop\\Coden\\EfCore\\EfCore-Uebung\\obj\\",
+      "outputPath": "C:\\Users\\vosshans\\Desktop\\Coden\\EfCore\\EfCore-Uebung\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\vosshans\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -3244,7 +3244,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.303/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
