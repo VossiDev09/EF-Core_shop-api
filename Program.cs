@@ -132,8 +132,26 @@ app.MapPost("/customers/{id}/orders", async (int id, CreateOrderRequest request,
 // ---------------------------------------------------------------------
 app.MapPut("/orders/{id}", async (int id, decimal newAmount, ShopDbContext db) =>
 {
+    var order = await db.Orders.SingleAsync(Order => Order.Id == id);
+
+    if (order == null)
+    {
+        return Results.NotFound();
+    }
+
+    order.TotalAmount = newAmount;
+
+    await db.SaveChangesAsync();
+
+    var response = new OrderResponse(
+        order.Id,
+        order.OrderDate,
+        order.TotalAmount,
+        order.CustomerId
+    );
+
     // TODO: Order laden, TotalAmount setzen, speichern. Sonst NotFound.
-    return Results.Problem("Aufgabe 5 noch nicht implementiert.");
+    return Results.Ok(response);
 });
 
 // ---------------------------------------------------------------------
