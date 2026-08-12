@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using EfCore_Uebung.Data;
 using EfCore_Uebung.Dtos;
 using EfCore_Uebung.Models;
@@ -159,8 +160,14 @@ app.MapPut("/orders/{id}", async (int id, decimal newAmount, ShopDbContext db) =
 // ---------------------------------------------------------------------
 app.MapDelete("/orders/{id}", async (int id, ShopDbContext db) =>
 {
+    var order = await db.Orders.SingleAsync(Order => Order.Id == id);
+
+    db.Orders.Remove(order);
+
+    await db.SaveChangesAsync();
+
     // TODO: Order laden, mit db.Orders.Remove(...) entfernen, speichern.
-    return Results.Problem("Aufgabe 6 noch nicht implementiert.");
+    return Results.Ok();
 });
 
 // ---------------------------------------------------------------------
