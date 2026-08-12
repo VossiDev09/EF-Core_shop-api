@@ -58,12 +58,16 @@ app.MapGet("/customers", async (ShopDbContext db) =>
 {
     var customers = await db.Customers.Include(Customers => Customers.Orders).ToListAsync();
 
-    foreach (var customer in customers)
-    {
-        
-    }
+    // var response = new CustomerResponse(
+        var response = customers.Select(Customer => new CustomerResponse(
+            Customer.Id,
+            Customer.Name,
+            Customer.Email,
+            Customer.Orders.Select(Order => new OrderResponse(
+                Order.Id, Order.OrderDate, Order.TotalAmount, Order.CustomerId)).ToList())).ToList();
+    
     // TODO: Alle Customers MIT ihren Orders laden (Include!) und zurückgeben.
-    return Results.Problem("Aufgabe 2 noch nicht implementiert.");
+    return Results.Ok(response);
 });
 
 // ---------------------------------------------------------------------
