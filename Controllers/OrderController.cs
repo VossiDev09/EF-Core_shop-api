@@ -10,7 +10,7 @@ public static class OrderController
 
         app.MapPost("/customers/{id}/orders", async (int id, CreateOrderRequest request, ShopDbContext db) =>
         {
-            var customer = await db.Customers.SingleAsync(Customer => Customer.Id == id);
+            var customer = await db.Customers.SingleOrDefaultAsync(Customer => Customer.Id == id);
 
             if (customer == null)
             {
@@ -41,7 +41,7 @@ public static class OrderController
 
         app.MapPut("/orders/{id}", async (int id, decimal newAmount, ShopDbContext db) =>
         {
-            var order = await db.Orders.SingleAsync(Order => Order.Id == id);
+            var order = await db.Orders.SingleOrDefaultAsync(Order => Order.Id == id);
 
             if (order == null)
             {
@@ -64,7 +64,12 @@ public static class OrderController
 
         app.MapDelete("/orders/{id}", async (int id, ShopDbContext db) =>
         {
-            var order = await db.Orders.SingleAsync(Order => Order.Id == id);
+            var order = await db.Orders.SingleOrDefaultAsync(Order => Order.Id == id);
+            
+            if (order == null)
+            {
+                return Results.NotFound();
+            }
 
             db.Orders.Remove(order);
 
@@ -82,7 +87,7 @@ public static class OrderController
                 Order.OrderDate,
                 Order.TotalAmount,
                 Order.CustomerId
-            ));
+            )).ToList();
             return Results.Ok(response);
         });
     }

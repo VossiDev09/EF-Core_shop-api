@@ -17,6 +17,9 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
+app.MapCustomerController();
+app.MapOrderController();
+
 app.UseHttpsRedirection();
 
 app.Run();
