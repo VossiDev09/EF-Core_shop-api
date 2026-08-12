@@ -18,44 +18,29 @@ public static class CustomerController
 
             db.Customers.Add(customer);
             await db.SaveChangesAsync();
-            var response = new CustomerResponse(
-                customer.Id,
-                customer.Name,
-                customer.Email,
-                customer.Orders.Select(Orders => new OrderResponse(
-                    Orders.Id, Orders.OrderDate, Orders.TotalAmount, Orders.CustomerId)).ToList());
+            var response = customer.ToResponse();
             return Results.Created($"/customers/{customer.Id}", response);
         });
 
         app.MapGet("/customers", async (ShopDbContext db) =>
         {
-            var customers = await db.Customers.Include(Customers => Customers.Orders).ToListAsync();
+            var customers = await db.Customers.Include(customers => customers.Orders).ToListAsync();
 
-            var response = customers.Select(Customer => new CustomerResponse(
-                Customer.Id,
-                Customer.Name,
-                Customer.Email,
-                Customer.Orders.Select(Order => new OrderResponse(
-                    Order.Id, Order.OrderDate, Order.TotalAmount, Order.CustomerId)).ToList())).ToList();
+            var response = customers.Select(customer => customer.ToResponse()).ToList();
 
             return Results.Ok(response);
         });
 
         app.MapGet("/customers/{id}", async (int id, ShopDbContext db) =>
         {
-            var customer = await db.Customers.Include(Customer => Customer.Orders).SingleOrDefaultAsync(Customer => Customer.Id == id);
+            var customer = await db.Customers.Include(customer => customer.Orders).SingleOrDefaultAsync(customer => customer.Id == id);
 
             if (customer == null)
             {
                 return Results.NotFound();
             }
 
-            var response = new CustomerResponse(
-                customer.Id,
-                customer.Name,
-                customer.Email,
-                customer.Orders.Select(Orders => new OrderResponse(
-                    Orders.Id, Orders.OrderDate, Orders.TotalAmount, Orders.CustomerId)).ToList());
+            var response = customer.ToResponse();
             return Results.Ok(response);
         });
     }

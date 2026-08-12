@@ -10,7 +10,7 @@ public static class OrderController
 
         app.MapPost("/customers/{id}/orders", async (int id, CreateOrderRequest request, ShopDbContext db) =>
         {
-            var customer = await db.Customers.SingleOrDefaultAsync(Customer => Customer.Id == id);
+            var customer = await db.Customers.SingleOrDefaultAsync(customer => customer.Id == id);
 
             if (customer == null)
             {
@@ -27,21 +27,16 @@ public static class OrderController
             db.Orders.Add(order);
             await db.SaveChangesAsync();
 
-            var response = new OrderResponse(
-                order.Id,
-                order.OrderDate,
-                order.TotalAmount,
-                order.CustomerId
-            );
+            var response = order.ToResponse();
 
 
-            return Results.Ok(response);
+            return Results.Created("$/customers/{id}/orders", response);
         });
 
 
         app.MapPut("/orders/{id}", async (int id, decimal newAmount, ShopDbContext db) =>
         {
-            var order = await db.Orders.SingleOrDefaultAsync(Order => Order.Id == id);
+            var order = await db.Orders.SingleOrDefaultAsync(order => order.Id == id);
 
             if (order == null)
             {
@@ -52,19 +47,14 @@ public static class OrderController
 
             await db.SaveChangesAsync();
 
-            var response = new OrderResponse(
-                order.Id,
-                order.OrderDate,
-                order.TotalAmount,
-                order.CustomerId
-            );
+            var response = order.ToResponse();
 
             return Results.Ok(response);
         });
 
         app.MapDelete("/orders/{id}", async (int id, ShopDbContext db) =>
         {
-            var order = await db.Orders.SingleOrDefaultAsync(Order => Order.Id == id);
+            var order = await db.Orders.SingleOrDefaultAsync(order => order.Id == id);
             
             if (order == null)
             {
@@ -80,14 +70,9 @@ public static class OrderController
 
         app.MapGet("/orders/expensive", async (decimal min, ShopDbContext db) =>
         {
-            var sortedOrders = await db.Orders.Where(Orders => Orders.TotalAmount > min).OrderByDescending(Order => Order.OrderDate).ToListAsync();
+            var sortedOrders = await db.Orders.Where(orders => orders.TotalAmount > min).OrderByDescending(order => order.OrderDate).ToListAsync();
 
-            var response = sortedOrders.Select(Order => new OrderResponse(
-                Order.Id,
-                Order.OrderDate,
-                Order.TotalAmount,
-                Order.CustomerId
-            )).ToList();
+            var response = sortedOrders.Select(order => order.ToResponse()).ToList();
             return Results.Ok(response);
         });
     }
