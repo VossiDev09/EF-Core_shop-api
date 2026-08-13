@@ -30,7 +30,7 @@ public class OrderController(ShopDbContext db) : ControllerBase
 
         var response = order.ToResponse();
 
-        return CreatedAtAction(nameof(GetById), response);
+        return CreatedAtAction(nameof(GetById), new {id = order.Id}, response);
     }
 
     [HttpPut("{id}")]
@@ -72,7 +72,10 @@ public class OrderController(ShopDbContext db) : ControllerBase
     [HttpGet("expensive")]
     public async Task<ActionResult<List<OrderResponse>>> FilterByAmount([FromQuery] decimal min)
     {
-        var sortedOrders = await db.Orders.Where(orders => orders.TotalAmount > min).OrderByDescending(order => order.OrderDate).ToListAsync();
+        var sortedOrders = await db.Orders
+        .Where(orders => orders.TotalAmount > min)
+        .OrderByDescending(order => order.OrderDate)
+        .ToListAsync();
 
         var response = sortedOrders.Select(order => order.ToResponse()).ToList();
         return Ok(response);
@@ -89,6 +92,33 @@ public class OrderController(ShopDbContext db) : ControllerBase
         }
 
         var response = order.ToResponse();
+        return Ok(response);
+    }
+
+    [HttpGet("search")]
+    public async Task<ActionResult<List<OrderResponse>>> Search(
+        [FromQuery] int? customerId,
+        [FromQuery] decimal? minAmount,
+        [FromQuery] int? days)
+    {
+        var query = db.Orders.AsQueryable();
+
+        if (customerId.HasValue)
+        {
+            query = query.Where(order => order.CustomerId == customerId.Value);
+        }
+        if (minAmount.HasValue)
+        {
+            query = query.Where(order => order.TotalAmount > minAmount.Value);
+        }
+        if (days.HasValue)
+        {
+            var daysAgo = DateTime.UtcNow.AddDays(-days.Value);
+            query = query.Where(order => order.OrderDate >= daysAgo);
+        }
+
+        var response = await query.ToListAsync();
+
         return Ok(response);
     }
 }

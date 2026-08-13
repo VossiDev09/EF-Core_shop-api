@@ -22,7 +22,7 @@ public class CustomerController(ShopDbContext db) : ControllerBase
         db.Customers.Add(customer);
         await db.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetById), customer.ToResponse());
+        return CreatedAtAction(nameof(GetById), new {id = customer.Id}, customer.ToResponse());
     }
 
     [HttpGet]
