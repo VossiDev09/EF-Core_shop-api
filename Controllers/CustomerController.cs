@@ -1,47 +1,52 @@
 using EfCore_Uebung.Data;
 using EfCore_Uebung.Dtos;
 using EfCore_Uebung.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-public static class CustomerController
+[ApiController]
+[Route("[Controller]")]
+
+public class CustomerController(ShopDbContext db) : ControllerBase
 {
-    public static void MapCustomerController(this WebApplication app)
+
+
+    [HttpPost]
+    public async Task<ActionResult<CustomerResponse>> Create(CreateCustomerRequest request)
     {
-
-        app.MapPost("/customers", async (CreateCustomerRequest request, ShopDbContext db) =>
+        var customer = new Customer
         {
-            var customer = new Customer
-            {
-                Name = request.Name,
-                Email = request.Email
-            };
+            Name = request.Name,
+            Email = request.Email
+        };
+        db.Customers.Add(customer);
+        await db.SaveChangesAsync();
+        var response = customer.ToResponse();
 
-            db.Customers.Add(customer);
-            await db.SaveChangesAsync();
-            var response = customer.ToResponse();
-            return Results.Created($"/customers/{customer.Id}", response);
-        });
+        return CreatedAtAction(nameof(GetById), new { id = customer.Id }, customer.ToResponse());
+    }
 
-        app.MapGet("/customers", async (ShopDbContext db) =>
+    [HttpGet]
+    public async Task<ActionResult<List<CustomerResponse>>> GetAll()
+    {
+        var customers = await db.Customers.Include(customers => customers.Orders).ToListAsync();
+
+        var response = customers.Select(customer => customer.ToResponse()).ToList();
+
+        return Ok(response);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<CustomerResponse>> GetById(int id)
+    {
+        var customer = await db.Customers.Include(customer => customer.Orders).SingleOrDefaultAsync(customer => customer.Id == id);
+
+        if (customer == null)
         {
-            var customers = await db.Customers.Include(customers => customers.Orders).ToListAsync();
+            return NotFound();
+        }
 
-            var response = customers.Select(customer => customer.ToResponse()).ToList();
-
-            return Results.Ok(response);
-        });
-
-        app.MapGet("/customers/{id}", async (int id, ShopDbContext db) =>
-        {
-            var customer = await db.Customers.Include(customer => customer.Orders).SingleOrDefaultAsync(customer => customer.Id == id);
-
-            if (customer == null)
-            {
-                return Results.NotFound();
-            }
-
-            var response = customer.ToResponse();
-            return Results.Ok(response);
-        });
+        var response = customer.ToResponse();
+        return Ok(response);
     }
 }
