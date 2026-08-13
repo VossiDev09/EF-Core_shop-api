@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("[Controller]")]
-
 public class CustomerController(ShopDbContext db) : ControllerBase
 {
 
@@ -19,11 +18,11 @@ public class CustomerController(ShopDbContext db) : ControllerBase
             Name = request.Name,
             Email = request.Email
         };
+
         db.Customers.Add(customer);
         await db.SaveChangesAsync();
-        var response = customer.ToResponse();
 
-        return CreatedAtAction(nameof(GetById), new { id = customer.Id }, customer.ToResponse());
+        return CreatedAtAction(nameof(GetById), customer.ToResponse());
     }
 
     [HttpGet]
@@ -36,7 +35,7 @@ public class CustomerController(ShopDbContext db) : ControllerBase
         return Ok(response);
     }
 
-    [HttpGet]
+    [HttpGet("{id}")]
     public async Task<ActionResult<CustomerResponse>> GetById(int id)
     {
         var customer = await db.Customers.Include(customer => customer.Orders).SingleOrDefaultAsync(customer => customer.Id == id);

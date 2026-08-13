@@ -1,82 +1,98 @@
 using EfCore_Uebung.Data;
 using EfCore_Uebung.Dtos;
 using EfCore_Uebung.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-public static class OrderController
+[ApiController]
+[Route("[Controller]")]
+public class OrderController(ShopDbContext db) : ControllerBase
 {
-    public static void MapOrderController(this WebApplication app)
+    [HttpPost("/customers/{id}/orders")]
+    public async Task<ActionResult<OrderResponse>> Create(int id, CreateOrderRequest request)
     {
+        var customer = await db.Customers.SingleOrDefaultAsync(customer => customer.Id == id);
 
-        app.MapPost("/customers/{id}/orders", async (int id, CreateOrderRequest request, ShopDbContext db) =>
+        if (customer == null)
         {
-            var customer = await db.Customers.SingleOrDefaultAsync(customer => customer.Id == id);
+            return NotFound();
+        }
 
-            if (customer == null)
-            {
-                return Results.NotFound();
-            }
-
-            var order = new Order
-            {
-                CustomerId = id,
-                OrderDate = request.OrderDate,
-                TotalAmount = request.TotalAmount
-            };
-
-            db.Orders.Add(order);
-            await db.SaveChangesAsync();
-
-            var response = order.ToResponse();
-
-
-            return Results.Created("$/customers/{id}/orders", response);
-        });
-
-
-        app.MapPut("/orders/{id}", async (int id, decimal newAmount, ShopDbContext db) =>
+        var order = new Order
         {
-            var order = await db.Orders.SingleOrDefaultAsync(order => order.Id == id);
+            CustomerId = id,
+            OrderDate = request.OrderDate,
+            TotalAmount = request.TotalAmount
+        };
 
-            if (order == null)
-            {
-                return Results.NotFound();
-            }
+        db.Orders.Add(order);
+        await db.SaveChangesAsync();
 
-            order.TotalAmount = newAmount;
+        var response = order.ToResponse();
 
-            await db.SaveChangesAsync();
+        return CreatedAtAction(nameof(GetById), response);
+    }
 
-            var response = order.ToResponse();
+    [HttpPut("{id}")]
+    public async Task<ActionResult<OrderResponse>> UpdateAmount(int id, [FromQuery] decimal newAmount)
+    {
+        var order = await db.Orders.SingleOrDefaultAsync(order => order.Id == id);
 
-            return Results.Ok(response);
-        });
-
-        app.MapDelete("/orders/{id}", async (int id, ShopDbContext db) =>
+        if (order == null)
         {
-            var order = await db.Orders.SingleOrDefaultAsync(order => order.Id == id);
-            
-            if (order == null)
-            {
-                return Results.NotFound();
-            }
+            return NotFound();
+        }
 
-            db.Orders.Remove(order);
+        order.TotalAmount = newAmount;
 
-            await db.SaveChangesAsync();
+        await db.SaveChangesAsync();
 
-            return Results.Ok();
-        });
+        var response = order.ToResponse();
 
-        app.MapGet("/orders/expensive", async (decimal min, ShopDbContext db) =>
+        return Ok(response);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(int id)
+    {
+        var order = await db.Orders.SingleOrDefaultAsync(order => order.Id == id);
+
+        if (order == null)
         {
-            var sortedOrders = await db.Orders.Where(orders => orders.TotalAmount > min).OrderByDescending(order => order.OrderDate).ToListAsync();
+            return NotFound();
+        }
 
-            var response = sortedOrders.Select(order => order.ToResponse()).ToList();
-            return Results.Ok(response);
-        });
+        db.Orders.Remove(order);
+
+        await db.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpGet("expensive")]
+    public async Task<ActionResult<List<OrderResponse>>> FilterByAmount([FromQuery] decimal min)
+    {
+        var sortedOrders = await db.Orders.Where(orders => orders.TotalAmount > min).OrderByDescending(order => order.OrderDate).ToListAsync();
+
+        var response = sortedOrders.Select(order => order.ToResponse()).ToList();
+        return Ok(response);
+    }
+    
+    [HttpGet]
+    public async Task<ActionResult<OrderResponse>> GetById([FromQuery] int id)
+    {
+        var order = await db.Orders.SingleOrDefaultAsync(order => order.Id == id);
+
+        if (order == null)
+        {
+            return NotFound();
+        }
+
+        var response = order.ToResponse();
+        return Ok(response);
     }
 }
+
 
 
 
