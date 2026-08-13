@@ -1,6 +1,7 @@
 using EfCore_Uebung.Data;
 using EfCore_Uebung.Dtos;
 using EfCore_Uebung.Models;
+using EfCore_Uebung.Specifications;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -105,16 +106,17 @@ public class OrderController(ShopDbContext db) : ControllerBase
 
         if (customerId.HasValue)
         {
-            query = query.Where(order => order.CustomerId == customerId.Value);
+            query = query.Where(new OrderByCustomerSpecification(customerId));
         }
+
         if (minAmount.HasValue)
         {
-            query = query.Where(order => order.TotalAmount > minAmount.Value);
+            query = query.Where(new OrderByMinAmountSpecification(minAmount));
         }
+
         if (days.HasValue)
         {
-            var daysAgo = DateTime.UtcNow.AddDays(-days.Value);
-            query = query.Where(order => order.OrderDate >= daysAgo);
+            query = query.Where(new OrderInLastDaysSpecification(days));
         }
 
         var response = await query.ToListAsync();
