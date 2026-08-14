@@ -12,4 +12,9 @@ public static class OrderExtensions
             order.CustomerId
         );
     }
+
+    public static List<OrderResponse> ToResponseList(this List<Order> orders)
+    {
+        return orders.Select(order => order.ToResponse()).ToList();
+    }
 }
