@@ -42,9 +42,7 @@ public class OrderService(ShopDbContext db) : IOrderService
 
     public async Task<Order?> GetOrderById(int id)
     {
-        var order = await db.Orders.SingleOrDefaultAsync(order => order.Id == id);
-
-        return order;
+        return await db.Orders.SingleOrDefaultAsync(order => order.Id == id);
     }
 
     public async Task<List<Order>> FilterByAmount(decimal minAmount)
