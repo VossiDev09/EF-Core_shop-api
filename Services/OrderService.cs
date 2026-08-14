@@ -102,7 +102,7 @@ public class OrderService(ShopDbContext db) : IOrderService
         return order;
     }
 
-    public async Task UpdateOrderStatus(int id, OrderStatus newStatus)
+    public async Task<Order> UpdateOrderStatus(int id, OrderStatus newStatus)
     {
         var order = await db.Orders.SingleOrDefaultAsync(order => order.Id == id);
         
@@ -117,6 +117,8 @@ public class OrderService(ShopDbContext db) : IOrderService
         else
         {
             order.OrderStatus = newStatus;
+            await db.SaveChangesAsync();
+            return order;
         }
     }
 }

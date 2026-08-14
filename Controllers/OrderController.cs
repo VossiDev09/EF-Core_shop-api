@@ -36,7 +36,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     {
         var sortedOrders = await orderService.FilterByAmount(min);
         var response = sortedOrders.Select(order => order.ToResponse()).ToList();
-        
+
         return Ok(response);
     }
 
@@ -64,6 +64,13 @@ public class OrderController(IOrderService orderService) : ControllerBase
         var query = await orderService.SearchOrder(customerId, minAmount, days);
 
         return Ok(query.ToResponseList());
+    }
+    
+    [HttpPatch("{id}/status")]
+    public async Task<ActionResult<OrderResponse>> UpdateStatus(int id, UpdateOrderStatusRequest request)
+    {
+        var order = await orderService.UpdateOrderStatus(id, request.OrderStatus);
+        return Ok(order.ToResponse());
     }
 }
 
