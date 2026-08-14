@@ -1,4 +1,5 @@
 using EfCore_Uebung.Data;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -11,6 +12,7 @@ builder.Services.AddDbContext<ShopDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IExceptionHandler, GlobalExceptionHandler>();
 
 var app = builder.Build();
 

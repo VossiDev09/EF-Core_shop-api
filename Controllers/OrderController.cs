@@ -63,7 +63,7 @@ public class OrderController(IOrderService orderService) : ControllerBase
     {
         var query = await orderService.SearchOrder(customerId, minAmount, days);
 
-        return Ok(query);
+        return Ok(query.ToResponseList());
     }
 }
 

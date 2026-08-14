@@ -7,6 +7,7 @@ public static class OrderExtensions
     {
         return new OrderResponse(
             order.Id,
+            order.OrderStatus,
             order.OrderDate,
             order.TotalAmount,
             order.CustomerId

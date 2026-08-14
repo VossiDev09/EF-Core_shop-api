@@ -2,6 +2,7 @@ using EfCore_Uebung.Data;
 using EfCore_Uebung.Models;
 using EfCore_Uebung.Specifications;
 using Microsoft.EntityFrameworkCore;
+using EfCore_Uebung.Exceptions;
 
 public class OrderService(ShopDbContext db) : IOrderService
 {
@@ -11,7 +12,7 @@ public class OrderService(ShopDbContext db) : IOrderService
 
         if (customer == null)
         {
-            throw new KeyNotFoundException();
+            throw new NotFoundException("Customer", id);
         }
 
         var order = new Order
@@ -33,7 +34,7 @@ public class OrderService(ShopDbContext db) : IOrderService
 
         if (order == null)
         {
-            throw new KeyNotFoundException();
+            throw new NotFoundException("Order", id);
         }
 
         db.Orders.Remove(order);
@@ -51,11 +52,6 @@ public class OrderService(ShopDbContext db) : IOrderService
         .Where(orders => orders.TotalAmount > minAmount)
         .OrderByDescending(order => order.OrderDate)
         .ToListAsync();
-
-        if (sortedOrders == null)
-        {
-            throw new KeyNotFoundException();
-        }
 
         return sortedOrders;
     }
@@ -79,11 +75,6 @@ public class OrderService(ShopDbContext db) : IOrderService
             query = query.Where(new OrderInLastDaysSpecification(days.Value));
         }
 
-        if(query == null)
-        {
-            throw new KeyNotFoundException();
-        }
-        
         return await query.ToListAsync();
     }
 
@@ -93,7 +84,7 @@ public class OrderService(ShopDbContext db) : IOrderService
 
         if (order == null)
         {
-            throw new KeyNotFoundException();
+            throw new NotFoundException("Order", id);
         }
 
         order.TotalAmount = newAmount;
