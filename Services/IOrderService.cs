@@ -9,4 +9,5 @@ public interface IOrderService
     Task<List<Order>> FilterByAmount(decimal minAmount);
     Task<List<Order>> SearchOrder(int? customerId, decimal? minAmount, int? days);
     Task<Order> UpdateOrderAmount(int id, decimal newAmount);
+    Task UpdateOrderStatus(int id, OrderStatus orderStatus);
 }

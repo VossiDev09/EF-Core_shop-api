@@ -6,6 +6,14 @@ using EfCore_Uebung.Exceptions;
 
 public class OrderService(ShopDbContext db) : IOrderService
 {
+    private static readonly Dictionary<OrderStatus, OrderStatus[]> Allowed = new()
+    {
+        [OrderStatus.Pending]   = [OrderStatus.Paid, OrderStatus.Cancelled],
+        [OrderStatus.Paid]      = [OrderStatus.Shipped, OrderStatus.Cancelled],
+        [OrderStatus.Shipped]   = [],
+        [OrderStatus.Cancelled] = [],
+    };
+
     public async Task<Order> CreateOrder(int id, DateTime orderDate, decimal totalAmount)
     {
         var customer = await db.Customers.SingleOrDefaultAsync(customer => customer.Id == id);
@@ -92,5 +100,23 @@ public class OrderService(ShopDbContext db) : IOrderService
         await db.SaveChangesAsync();
 
         return order;
+    }
+
+    public async Task UpdateOrderStatus(int id, OrderStatus newStatus)
+    {
+        var order = await db.Orders.SingleOrDefaultAsync(order => order.Id == id);
+        
+        if (order == null)
+        {
+            throw new NotFoundException("order", id);
+        } 
+        else if(!Allowed[order.OrderStatus].Contains(newStatus))
+        {
+            throw new InvalidOrderStatusTransitionException(order.OrderStatus, newStatus);
+        }     
+        else
+        {
+            order.OrderStatus = newStatus;
+        }
     }
 }
