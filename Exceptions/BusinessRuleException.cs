@@ -5,8 +5,8 @@ public class BusinessRuleException : Exception
     public string ErrorCode { get; }
     public int StatusCode { get; }      
 
-    public BusinessRuleException()
-        : base()
+    public BusinessRuleException(string message)
+        : base(message)
     {
         ErrorCode = "CONFLICT";
         StatusCode = StatusCodes.Status409Conflict;

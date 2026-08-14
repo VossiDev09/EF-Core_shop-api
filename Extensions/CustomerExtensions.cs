@@ -10,10 +10,6 @@ public static class CustomerExtensions
             customer.Id,
             customer.Name,
             customer.Email,
-            customer.Orders.Select(order => new OrderResponse(
-                order.Id,
-                order.OrderDate,
-                order.TotalAmount,
-                order.CustomerId)).ToList());
+            customer.Orders.ToResponseList());
     }
 }
